@@ -37,6 +37,6 @@ With further training on production data, the AI improves accuracy in predicting
 🔹 Why It Matters
 Traditionally, Life Cycle Assessment (LCA) is performed late in product development time-consuming, costly, and after key design decisions are made.
 This project shifts sustainability analysis upstream into the design phase, enabling engineers to:
-Get real-time sustainability feedback
-Select greener materials and processes
-Ensure compliance with EU Green Deal and Digital Product Passport (DPP)
+<>Get real-time sustainability feedback
+<>Select greener materials and processes
+<>Ensure compliance with EU Green Deal and Digital Product Passport (DPP)
