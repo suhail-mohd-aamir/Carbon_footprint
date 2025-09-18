@@ -1,5 +1,5 @@
 from pycatia import catia
-from get_properties import CatPartProperties  # replace with the actual module name
+from src.get_properties import CatPartProperties  # replace with the actual module name
 
 def main(file_path: str):
 
