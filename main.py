@@ -24,5 +24,5 @@ def main(file_path: str):
 
 if __name__ == "__main__":
 
-    file_path = r"C:/Users/yasin/Desktop/catis_proj/cube.CATPart" #Enter your file path
+    file_path = r"D:\Catia V5\Catia Assembly\screw jack assembly\special washer.CATPart" #Enter your file path
     main(file_path)
