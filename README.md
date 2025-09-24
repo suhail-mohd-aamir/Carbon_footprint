@@ -1,42 +1,62 @@
 # Carbon_footprint
-AI-Based Carbon Footprint Estimation from 3D CAD Models 
+AI-Powered Carbon Footprint Estimation from 3D CAD Models
 <br>
 Author- Mohd Aamir Suhail
 
-This project develops an AI model that estimates the carbon footprint of a part directly from its 3D CAD model.
+This project introduces an AI-driven solution that transforms 3D CAD models into actionable sustainability insights. By automatically extracting material and manufacturing details from CAD files and linking them with trusted emission factor databases, the system provides instant estimates of a part’s carbon footprint.
 
-🔹 Key Idea
-Modern CAD software like CATIA provides part-level data such as:
-Mass
-Surface area
-Vulume
+Instead of waiting for long and complex Life Cycle Assessments, engineers and manufacturers can now get real time feedback during the design phase helping them choose greener materials, reduce machining waste, and cut energy consumption.
+
+## Methodology Logic
+🔹 Methodology Logic
+
+**Input from CAD**
+
 Material type
 
-By linking this information with emission factors of materials, the model calculates the material-related carbon footprint.
+Mass of part
 
-🔹 Machining Impact
-The model also estimates the machining footprint for processes such as:
-Milling
-Turning
-Drilling
-Threading
+Volume / Surface area (optional)
 
-Factors considered include:
-Machine energy use
-Tooling
-Coolant
-Recycling credits
+Material Footprint
 
-🔹 Output
-The system provides a clear breakdown of emissions per part:
-🌱 Material impact
-⚙️ Machining impact
-📊 Total emissions
-With further training on production data, the AI improves accuracy in predicting machining energy and process times.
+Each material has an Emission Factor (EF) in kgCO₂e/kg (from ICE, ÖKOBAUDAT, or USLCI datasets).
 
-🔹 Why It Matters
-Traditionally, Life Cycle Assessment (LCA) is performed late in product development time-consuming, costly, and after key design decisions are made.
-This project shifts sustainability analysis upstream into the design phase, enabling engineers to:
-<>Get real-time sustainability feedback
-<>Select greener materials and processes
-<>Ensure compliance with EU Green Deal and Digital Product Passport (DPP)
+Formula:
+**Material footprint (display):**
+\[
+CF_{\text{material}} = m \cdot EF_{\text{material}}
+\]
+
+Machining Footprint
+
+Case A (with machining time):
+**Machining (case A — with machining time):**
+\[
+E = P_{\text{avg}} \cdot t
+\]
+\[
+CF_{\text{machining}} = E \cdot EF_{\text{electricity}}
+\]
+
+Case B (with chip volume):
+
+**Machining (case B — with chip volume):**
+\[
+V_{\text{chip}} = V_{\text{stock}} - V_{\text{final}}
+\]
+\[
+E = U_{\text{cut}} \cdot V_{\text{chip}}
+\]
+\[
+CF_{\text{machining}} = E \cdot EF_{\text{electricity}}
+\]
+
+Total Footprint
+
+**Total footprint (display):**
+\[
+CF_{\text{total}} = CF_{\text{material}} + CF_{\text{machining}}
+\]
+
+### Block Diagram
