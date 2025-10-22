@@ -23,40 +23,24 @@ Material Footprint
 Each material has an Emission Factor (EF) in kgCO₂e/kg (from ICE, ÖKOBAUDAT, or USLCI datasets).
 
 Formula:
-**Material footprint (display):**
-\[
-CF_{\text{material}} = m \cdot EF_{\text{material}}
-\]
+**CF_material = Mass × EF_material**
 
 Machining Footprint
 
 Case A (with machining time):
-**Machining (case A — with machining time):**
-\[
-E = P_{\text{avg}} \cdot t
-\]
-\[
-CF_{\text{machining}} = E \cdot EF_{\text{electricity}}
-\]
+**Energy = Average Machine Power × Machining Time
+CF_machining = Energy × EF_electricity**
 
 Case B (with chip volume):
 
-**Machining (case B — with chip volume):**
-\[
-V_{\text{chip}} = V_{\text{stock}} - V_{\text{final}}
-\]
-\[
-E = U_{\text{cut}} \cdot V_{\text{chip}}
-\]
-\[
-CF_{\text{machining}} = E \cdot EF_{\text{electricity}}
-\]
+**Chip Volume = Stock Volume – Final Part Volume
+Energy = Specific Cutting Energy × Chip Volume
+CF_machining = Energy × EF_electricity**
 
 Total Footprint
 
-**Total footprint (display):**
-\[
-CF_{\text{total}} = CF_{\text{material}} + CF_{\text{machining}}
-\]
+**CF_total = CF_material + CF_machining**
 
-### Block Diagram
+## 📊 Process Diagram
+
+![Block Diagram](/demo/Process_diagram.svg)
