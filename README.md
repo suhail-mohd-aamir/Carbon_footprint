@@ -34,5 +34,4 @@ By embedding these principles into the design phase, this project empowers engin
 
 
 ## 📊 Process Diagram
-
 ![Block Diagram](/demo/Process_diagram.svg)
