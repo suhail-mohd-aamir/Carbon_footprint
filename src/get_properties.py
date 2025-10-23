@@ -4,6 +4,9 @@ from pycatia.mec_mod_interfaces.part_document import PartDocument
 from pycatia.cat_mat_interfaces.material_manager import MaterialManager
 
 class CatPartProperties:
+    """
+    Class to extract the properties of a part in CATIA. Properties currently include ,ass, volume, material, surface area.
+    """
     def __init__(self, file_path: str):
         self.file_path = Path(file_path)
         self.mass = None
