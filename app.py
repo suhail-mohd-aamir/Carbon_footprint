@@ -1,80 +1,79 @@
 import gradio as gr
-from pycatia import catia
+import pythoncom
+from src.calculation import CarbonFootprintCalculator
 from src.get_properties import CatPartProperties
+from src.machining_time import extract_cutting_time
 
-# Example processing function (kept separate / attached to the interface)
-def process_file(file):
-    # defensive handling of different Gradio upload shapes
-    if file is None:
-        return "No file provided."
 
-    # determine a path to the uploaded file
-    file_path = None
-    if hasattr(file, "name") and file.name:
-        file_path = file.name
-    elif isinstance(file, dict) and "name" in file:
-        file_path = file["name"]
-    else:
-        # fallback: try repr for debugging
-        return "Unable to determine uploaded file path."
+def calculate_carbon_footprint(
+    cad_file, cam_file, stock_mass_kg, power_kw, ef_material, ef_electricity, recycling_credit
+):
+    import traceback
+    import pythoncom
 
-    print("Uploaded file path:", file_path)
-
-    cat_part = CatPartProperties(file_path)
     try:
-        cat_part._load_document()  # load the CATPart into spa_workbench
+        if not cad_file or not cam_file:
+            return "❌ Please upload both a CATPart and CAM HTML file."
 
-        mass = cat_part.calculate_mass()
-        volume = cat_part.calculate_volume()
-        surface_area = cat_part.calculate_surface_area()
-        material = cat_part.get_material_name()
+        pythoncom.CoInitialize()  # Initialize COM
 
-        # return a formatted summary string (important: return, so UI updates)
-        return (
-            f"Properties for {file_path}:\n"
-            f"- Mass: {mass} kg\n"
-            f"- Volume: {volume} mm³\n"
-            f"- Surface Area: {surface_area} mm²\n"
-            f"- Material: {material}\n"
+        cat_part = CatPartProperties(cad_file.name)
+        cat_part._load_document()
+        try:
+            mass = cat_part.calculate_mass()
+            volume = cat_part.calculate_volume()
+            surface_area = cat_part.calculate_surface_area()
+            material = cat_part.get_material_name()
+        finally:
+            cat_part.close()
+
+        machining_time_s = extract_cutting_time(cam_file.name)
+
+        calculator = CarbonFootprintCalculator(
+            mass_kg=mass,
+            stock_mass_kg=stock_mass_kg,
+            power_kw=power_kw,
+            machining_time_s=machining_time_s,
+            ef_material=ef_material,
+            ef_electricity=ef_electricity,
+            recycling_credit=recycling_credit or 0.0
         )
+
+        total = calculator.total_co2e()
+
+        return (
+            f"✅ **Carbon Footprint Report**\n\n"
+            f"**Material:** {material}  \n"
+            f"**Mass:** {mass:.3f} kg  \n"
+            f"**Volume:** {volume:.3f} mm³  \n"
+            f"**Surface Area:** {surface_area:.3f} mm²  \n"
+            f"**Machining Time:** {machining_time_s:.1f} s  \n\n"
+            f"**Total CO₂e:** {total:.2f} kg CO₂e"
+        )
+
 
     except Exception as e:
-        return f"Error processing CATPart: {e}"
-    finally:
-        try:
-            cat_part.close()
-        except Exception:
-            pass
+        # Show full traceback in UI for debugging
+        return f"❌ Error: {str(e)}\n\n{traceback.format_exc()}"
 
-# Build a nicer UI using Blocks — no function attached to the Analyze button yet
-with gr.Blocks(title="🌍 Carbon Footprint — File Analyzer") as demo:
-    gr.Markdown("# 🌍 Carbon Footprint — File Analyzer")
-    gr.Markdown(
-        "Upload a file to get a quick summary and insights. "
-        "This demo shows the interface only — the processing function is not attached yet. ✨📄\n\n"
-        "- Planned: word/line/char counts, file metadata, and quick tips to reduce carbon footprint.\n"
-        "- To enable processing: connect your function to the Analyze button (example below)."
-    )
 
-    with gr.Row():
-        file_input = gr.File(label="Upload file", file_count="single")
-        # larger, scrollable result area
-        output = gr.Textbox(
-            label="Result",
-            placeholder="Results will appear here...",
-            interactive=False,
-            lines=15,      # visible height (~15 lines)
-            max_lines=1000 # allow scrolling for large outputs
-        )
 
-    with gr.Row():
-        analyze_btn = gr.Button("🔎 Analyze", variant="primary")
-        analyze_btn.click(fn=process_file, inputs=file_input, outputs=output)
-        gr.Markdown(
-            "To attach processing, call:\n\n"
-            "`analyze_btn.click(fn=process_file, inputs=file_input, outputs=output)`\n\n"
-            "This line is intentionally omitted so the UI is shown without running any logic."
-        )
+# --- Gradio Interface ---
+demo = gr.Interface(
+    fn=calculate_carbon_footprint,
+    inputs=[
+        gr.File(label="Upload CATIA Part File (.CATPart)"),
+        gr.File(label="Upload CAM HTML File"),
+        gr.Number(label="Stock Mass (kg)", value=1.0),
+        gr.Number(label="Machine Power (kW)", value=2.0),
+        gr.Number(label="Material Emission Factor (kg CO2e/kg)", value=8.5),
+        gr.Number(label="Electricity Emission Factor (kg CO2e/kWh)", value=0.4),
+        gr.Number(label="Recycling Credit (0.0 - 1.0)", value=0.0),
+    ],
+    outputs=gr.Markdown(label="Carbon Footprint Report"),
+    title="🌍 CATIA Carbon Footprint Estimator",
+    description="Upload your CATIA .CATPart and CAM HTML file to calculate the total CO₂e footprint."
+)
 
 if __name__ == "__main__":
     demo.launch()
